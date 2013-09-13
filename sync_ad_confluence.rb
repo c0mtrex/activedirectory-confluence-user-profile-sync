@@ -60,7 +60,7 @@ def activedirectory_users(opts, accountname_expr = 'jturner')
     ldap.search(
 	:base => opts[:basedn],
 	:filter => filter,
-	:attributes => [:samaccountname, :displayname, :mail, :telephonenumber, :description, :department, :company, :physicaldeliveryofficename, :streetaddress, :l, :st, :postalcode, :co, :thumbnailPhoto]
+	:attributes => [:samaccountname, :displayname, :mail, :telephonenumber, :title, :department, :company, :physicaldeliveryofficename, :streetaddress, :l, :st, :postalcode, :co, :thumbnailPhoto]
     ) 
 end
 
@@ -108,7 +108,7 @@ end
 # Given a hash of activedirectory attributes (eg. {displayname: ["Joe Bloggs"], mail: [joe@example.com], ...}, return a hash of equivalent JIRA user profile HTML form field values.
 # 
 # Sample keys that might be passed in
-#:attributes => [:samaccountname, :displayname, :mail, :telephonenumber, :description, :department, :company, :physicaldeliveryofficename, :streetaddress, :l, :st, :postalcode, :co]
+#:attributes => [:samaccountname, :displayname, :mail, :telephonenumber, :title, :department, :company, :physicaldeliveryofficename, :streetaddress, :l, :st, :postalcode, :co]
 def ad_to_profile(adhash)
     confhash={}
     o,s,l,st,p,co=nil
@@ -124,10 +124,10 @@ def ad_to_profile(adhash)
 	    confhash[:phone]=v[0]
 	when :jabberid
 	    confhash[:im]=v[0]
-	when :description
+	when :title
 	    confhash[:position]=v[0]
 	when :department
-	    confhash[:description]=v[0]
+	    confhash[:department]=v[0]
 	when :physicaldeliveryofficename
 	    o=v[0]
 	when :streetaddress
