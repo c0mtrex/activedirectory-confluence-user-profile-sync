@@ -55,7 +55,7 @@ def activedirectory_users(opts, accountname_expr = 'jturner')
     
     }
 
-    filter = Net::LDAP::Filter.construct("(&(objectCategory=Person)(sAMAccountName=#{accountname_expr}))")
+    filter = Net::LDAP::Filter.construct("(&(objectCategory=Person)(sAMAccountName=#{accountname_expr})(!(userAccountControl:1.2.840.113556.1.4.803:=2)))")
 
     ldap.search(
 	:base => opts[:basedn],
