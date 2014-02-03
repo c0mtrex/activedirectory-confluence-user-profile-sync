@@ -35,8 +35,9 @@ def get_edituser_actionurl(opts, username)
 	open(opts[:confbaseurl] + "/admin/users/edituser.action?os_authType=basic&username=#{username}", "X-Atlassian-Token" => "no-check", :http_basic_authentication=>[opts[:confuser], opts[:confpassword]]) { |f| f.read }
 
     if pagebody =~ /Not Permitted/ then
-	$stderr.puts "Could not find #{username}"
-	exit 1
+	raise "Could not find #{username}"
+	#$stderr.puts "Could not find #{username}"
+	#exit 1
     end
     html = Nokogiri::HTML(pagebody)
     actionurl = html.css("form[name=editUser]").attribute("action").value
@@ -55,7 +56,7 @@ def activedirectory_users(opts, accountname_expr = 'jturner')
     
     }
 
-    filter = Net::LDAP::Filter.construct("(&(objectCategory=Person)(sAMAccountName=#{accountname_expr})(!(userAccountControl:1.2.840.113556.1.4.803:=2)))")
+    filter = Net::LDAP::Filter.construct("(&(objectCategory=Person)(memberof=CN=confluence-included,OU=Groups,OU=ADMIN,DC=magicleap,DC=ds)(sAMAccountName=#{accountname_expr})(!(userAccountControl:1.2.840.113556.1.4.803:=2)))")
 
     ldap.search(
 	:base => opts[:basedn],
@@ -154,8 +155,12 @@ Parallel.map( activedirectory_users(opts, username), :in_processes=>10 ) { |entr
     if !profilefields[:email] then
 	$stderr.puts " *** Skipping #{profilefields[:username]} as it has no email record" if opts[:verbose]
     else
-	profileurl = update_confluence_profile(opts, profilefields)
-	profileurl.gsub! /;jsessionid=.*?(?=\?)/, '' # Get rid of jsessionid for readability
-	puts "#{username}: set profile: #{profilefields}" if opts[:verbose]
+	begin
+		profileurl = update_confluence_profile(opts, profilefields)
+		profileurl.gsub! /;jsessionid=.*?(?=\?)/, '' # Get rid of jsessionid for readability
+		puts "#{username}: set profile: #{profilefields}" if opts[:verbose]
+	rescue Exception => e
+		$stderr.puts e
+	end
     end
 }
