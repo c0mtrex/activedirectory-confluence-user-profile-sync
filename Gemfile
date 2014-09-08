@@ -1,4 +1,5 @@
 source 'https://rubygems.org'
+gem 'trollop'
 gem 'nokogiri'
 gem 'net-ldap'
 gem 'parallel'
