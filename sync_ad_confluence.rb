@@ -130,6 +130,7 @@ def ad_to_profile(adhash)
 	when :department
 	    confhash[:department]=v[0]
 	when :physicaldeliveryofficename
+	    #confhash[:location]=v[0]
 	    o=v[0]
 	when :streetaddress
 	    s=v[0]
@@ -144,7 +145,9 @@ def ad_to_profile(adhash)
 	end
     }
     # Location is a composite of various AD fields
-    confhash[:location]=[o,s,l,st,p,co].select{|x|x}.join(", ")
+    # No longer - Location is now just the Office address. see https://mail.google.com/mail/u/0/#inbox/148483cc3d1132ad
+    #confhash[:location]=[o,s,l,st,p,co].select{|x|x}.join(", ")
+    confhash[:location]='' + (o || '') + ' - ' + [l,st].select{|x|x}.join(", ")
     return confhash
 end
 
