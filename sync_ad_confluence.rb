@@ -61,7 +61,7 @@ def activedirectory_users(opts, accountname_expr = 'jturner')
     ldap.search(
 	:base => opts[:basedn],
 	:filter => filter,
-	:attributes => [:samaccountname, :displayname, :mail, :telephonenumber, :title, :department, :company, :physicaldeliveryofficename, :streetaddress, :l, :st, :postalcode, :co, :thumbnailPhoto]
+	:attributes => [:samaccountname, :displayname, :mail, :telephonenumber, :title, :department, :company, :physicaldeliveryofficename, :streetaddress, :l, :st, :postalcode, :co, :thumbnailPhoto, :manager]
     ) 
 end
 
@@ -113,6 +113,7 @@ end
 def ad_to_profile(adhash)
     confhash={}
     o,s,l,st,p,co=nil
+    title,manager=nil
     adhash.each { |k,v|
 	case k
 	when :samaccountname
@@ -126,7 +127,13 @@ def ad_to_profile(adhash)
 	when :jabberid
 	    confhash[:im]=v[0]
 	when :title
-	    confhash[:position]=v[0]
+	    title=v[0]
+	when :manager
+	    if v[0] =~ /^CN=(.*?),/ then
+		manager = $1
+	    else
+		$stderr.puts "Warning: #{confhash[:displayname]} has manager #{v[0]}, which does not conform to expected CN=... pattern"
+	    end
 	when :department
 	    confhash[:department]=v[0]
 	when :physicaldeliveryofficename
@@ -148,6 +155,9 @@ def ad_to_profile(adhash)
     # No longer - Location is now just the Office address. see https://mail.google.com/mail/u/0/#inbox/148483cc3d1132ad
     #confhash[:location]=[o,s,l,st,p,co].select{|x|x}.join(", ")
     confhash[:location]='' + (o || '') + ' - ' + [l,st].select{|x|x}.join(", ")
+    # Likewise, Position is a composite of title and manager
+    confhash[:position]=title if title
+    confhash[:position]=confhash[:position] +", reporting to " + manager if manager && confhash[:position]
     return confhash
 end
 
