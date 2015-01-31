@@ -13,7 +13,7 @@ You will need Ruby (tested on 1.9.3p0, 2.0.0-p195 and 2.0.0p247), eg:
 Some Ruby gems are required before the script will work:
 
     # aptitude install ruby1.9.1-dev  # Required for building nokogiri
-    # gem install trollop net-ldap nokogiri parallel
+    # bundle (run in script's directory; installs gem dependencies specified in ./Gemfile)
 
 ## Sample Usage
 
